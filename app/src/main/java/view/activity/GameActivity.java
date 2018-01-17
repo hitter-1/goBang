@@ -1,10 +1,12 @@
 package view.activity;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -12,13 +14,18 @@ import android.widget.Toast;
 import com.example.zhongyu.gobang_ai.R;
 
 import io.reactivex.functions.Consumer;
+import rxjava.bluetooth.BluetoothClient;
 import view.GoBangBoard;
+import view.dialog.BaseDialog;
+import view.dialog.DialogCenter;
 
 /**
  * Created by zhongyu on 1/12/2018.
  */
 
 public class GameActivity extends AppCompatActivity {
+    private static final String TAG = "GameActivity";
+    
     public static final String GAME_MODE = "gamemode";
 
     public static final String GAME_WIFI = "gamewifi";
@@ -29,6 +36,7 @@ public class GameActivity extends AppCompatActivity {
     private String gameMode = null;
 
     private GoBangBoard goBangBoard;
+    private DialogCenter mDialogCenter;
 
 
     public static void startActivity(Context context, String mode) {
@@ -47,6 +55,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void initView() {
         goBangBoard = (GoBangBoard) findViewById(R.id.go_bang_board);
+        mDialogCenter = new DialogCenter(this);
         goBangBoard.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -54,15 +63,38 @@ public class GameActivity extends AppCompatActivity {
                 return false;
             }
         });
-        goBangBoard.putChessEvent.subscribe(new Consumer<GoBangBoard.PutEvent>() {
+        //使用Rxjava取代回调
+        goBangBoard.putChessSubjuct.subscribe(new Consumer<GoBangBoard.PutEvent>() {
             @Override
             public void accept(GoBangBoard.PutEvent putEvent) throws Exception {
+                Log.d(TAG, "accept() returned: " );
+            }
+        });
+
+        mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+                Log.d(TAG, "accept() returned: " );
             }
         });
     }
 
+    //扫描蓝牙
+    private void bluetoothScan() {
+        BluetoothClient.get(this).publishSubject.subscribe(new Consumer<BluetoothDevice>() {
+            @Override
+            public void accept(BluetoothDevice bluetoothDevice) throws Exception {
+
+            }
+        });
+    }
+
+
     private void initData() {
         gameMode = getIntent().getStringExtra(GAME_MODE);
+        if(gameMode.equals(GAME_MODE)) {
+            bluetoothScan();
+        }
         setTitle(gameMode);
     }
 

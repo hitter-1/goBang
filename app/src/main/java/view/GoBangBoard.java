@@ -59,10 +59,10 @@ public class GoBangBoard extends View {
 
     private int mLineCount;
 
-    private PublishSubject<PutEvent> putChessSubjuct = PublishSubject.create();
+    public PublishSubject<PutEvent> putChessSubjuct = PublishSubject.create();
 
 
-    public Observable<PutEvent> putChessEvent = putChessSubjuct;
+//    public Observable<PutEvent> putChessEvent = putChessSubjuct;
 
     public GoBangBoard(Context context) {
         super(context);
@@ -246,22 +246,29 @@ public class GoBangBoard extends View {
 
         mLastPutX = x;
         mLastPutY = y;
-        putChessSubjuct.onNext(new PutEvent(isWhite, x, y));
+        putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         invalidate();
     }
 
+
     //静态内部类不会持有外部类的引用，防止内存泄漏
     public static class PutEvent {
-        private boolean isWhite;
+        private int[][] mBoard;
         private int x;
         private int y;
 
-        public boolean isWhite() {
-            return isWhite;
+        public PutEvent(int[][] mBoard, int x, int y) {
+            this.mBoard = mBoard;
+            this.x = x;
+            this.y = y;
         }
 
-        public void setWhite(boolean white) {
-            isWhite = white;
+        public int[][] getmBoard() {
+            return mBoard;
+        }
+
+        public void setmBoard(int[][] mBoard) {
+            this.mBoard = mBoard;
         }
 
         public int getX() {
@@ -277,12 +284,6 @@ public class GoBangBoard extends View {
         }
 
         public void setY(int y) {
-            this.y = y;
-        }
-
-        public PutEvent(boolean isWhite, int x, int y) {
-            this.isWhite = isWhite;
-            this.x = x;
             this.y = y;
         }
     }
