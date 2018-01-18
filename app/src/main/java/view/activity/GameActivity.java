@@ -9,14 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.zhongyu.gobang_ai.R;
 
 import io.reactivex.functions.Consumer;
 import rxjava.bluetooth.BluetoothClient;
 import view.GoBangBoard;
-import view.dialog.BaseDialog;
+import view.dialog.CompositionDialog;
 import view.dialog.DialogCenter;
 
 /**
@@ -37,6 +36,9 @@ public class GameActivity extends AppCompatActivity {
 
     private GoBangBoard goBangBoard;
     private DialogCenter mDialogCenter;
+
+    private boolean mIsHost;//主机
+    private boolean mIsMePlay = false;
 
 
     public static void startActivity(Context context, String mode) {
@@ -74,10 +76,30 @@ public class GameActivity extends AppCompatActivity {
         mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<String>() {
             @Override
             public void accept(String s) throws Exception {
-                Log.d(TAG, "accept() returned: " );
+                if(s.endsWith(CompositionDialog.CREAT_GAME)) {
+                    onCreateGame();
+                }else if(s.endsWith(CompositionDialog.JOIN_GAME)) {
+                    joinGame();
+                }else if(s.endsWith(CompositionDialog.BTN_CANCEL)) {
+                    quitGame();
+                }
             }
         });
     }
+
+    private void onCreateGame() {
+        mIsHost = true;
+        mDialogCenter.showWaitintPlayerDialog();
+    }
+
+    private void joinGame() {
+
+    }
+
+    private void quitGame() {
+
+    }
+
 
     //扫描蓝牙
     private void bluetoothScan() {
