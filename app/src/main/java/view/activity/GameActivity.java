@@ -14,6 +14,7 @@ import com.example.zhongyu.gobang_ai.R;
 
 import io.reactivex.functions.Consumer;
 import rxjava.bluetooth.BluetoothClient;
+import utils.Constants;
 import view.GoBangBoard;
 import view.dialog.CompositionDialog;
 import view.dialog.DialogCenter;
@@ -90,6 +91,7 @@ public class GameActivity extends AppCompatActivity {
     private void onCreateGame() {
         mIsHost = true;
         mDialogCenter.showWaitintPlayerDialog();
+        bluetoothScan(true);
     }
 
     private void joinGame() {
@@ -100,10 +102,12 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-
-    //扫描蓝牙
-    private void bluetoothScan() {
-        BluetoothClient.get(this).publishSubject.subscribe(new Consumer<BluetoothDevice>() {
+    /**
+     * 蓝牙
+     * @param discoverable ture 扫描或被发现
+     */
+    private void bluetoothScan(boolean discoverable) {
+        BluetoothClient.get(this, false).publishSubject.subscribe(new Consumer<BluetoothDevice>() {
             @Override
             public void accept(BluetoothDevice bluetoothDevice) throws Exception {
 
@@ -114,8 +118,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void initData() {
         gameMode = getIntent().getStringExtra(GAME_MODE);
-        if(gameMode.equals(GAME_MODE)) {
-            bluetoothScan();
+        if(gameMode.endsWith(Constants.BLUE_TOOTH_MODE)) {
+        }else if(gameMode.endsWith(Constants.WIFI_MODE)) {
         }
         setTitle(gameMode);
     }

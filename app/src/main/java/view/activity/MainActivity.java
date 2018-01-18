@@ -19,6 +19,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import rxjava.bluetooth.BluetoothClient;
+import utils.Constants;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -31,19 +32,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnWifi(View view) {
-        GameActivity.startActivity(this, GameActivity.GAME_WIFI);
+        GameActivity.startActivity(this, Constants.WIFI_MODE);
     }
 
     public void btnBluetooth(View view) {
-        GameActivity.startActivity(this, GameActivity.GAME_BLUETOOTH);
+        GameActivity.startActivity(this, Constants.BLUE_TOOTH_MODE);
     }
 
     public void btnAI(View view) {
-        GameActivity.startActivity(this, GameActivity.GAME_AI);
+        GameActivity.startActivity(this, Constants.AI_MODE);
     }
 
     public void btnDoubleAgain(View view) {
-        GameActivity.startActivity(this, GameActivity.GAME_DOUBLE_AGAIN);
+        GameActivity.startActivity(this, Constants.COUPE_MODE);
     }
 
 

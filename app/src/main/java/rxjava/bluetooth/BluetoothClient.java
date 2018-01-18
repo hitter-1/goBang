@@ -25,24 +25,69 @@ public class BluetoothClient {
     BluetoothAdapter mBluetoothAdapter;
     private static volatile BluetoothClient proxyClient;
     public PublishSubject<BluetoothDevice> publishSubject;
+    private Context mContext;
+    private boolean Discoverable = false;
 
-    private BluetoothClient(Context context) {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    /**
+     *
+     * @param context
+     * @param discoverable 是查找其他设备还是被别的设备找到
+     */
+    private BluetoothClient(Context context, boolean discoverable) {
         publishSubject = PublishSubject.create();
-        //判断蓝牙是否可用
-        if(!mBluetoothAdapter.isEnabled()) {
-            mBluetoothAdapter.enable();//打开蓝牙
+        mContext = context;
+        initBlueTooth();
+        if(discoverable) {
+            setDiscoverable(context);
+        }else {
+            startDiscovery();
         }
-        mBluetoothAdapter.startDiscovery();
-        IntentFilter filter=new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        context.registerReceiver(mBroadcastReceiver,filter);
     }
 
-    public static BluetoothClient get(Context context) {
+
+    private boolean initBlueTooth() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(mBluetoothAdapter != null) {
+            if(!mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.enable();
+            }
+        }
+        return mBluetoothAdapter != null;
+    }
+
+    private void startDiscovery() {
+        mBluetoothAdapter.startDiscovery();
+        registerReceiver();
+    }
+
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        mContext.registerReceiver(mBroadcastReceiver, filter);
+    }
+
+
+    private void setDiscoverable(Context mContext) {
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        mContext.startActivity(discoverableIntent);
+        startBlueToothService();
+    }
+
+    private void startBlueToothService() {
+        //如何本地蓝牙在搜索其他设备就取消搜索.专心做服务蓝牙设备
+        if(mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
+    }
+
+
+    public static BluetoothClient get(Context context, boolean discoverable) {
         if(proxyClient == null) {
             synchronized (BluetoothClient.class) {
                 if(proxyClient == null) {
-                    proxyClient = new BluetoothClient(context);
+                    proxyClient = new BluetoothClient(context, discoverable);
                 }
             }
         }
