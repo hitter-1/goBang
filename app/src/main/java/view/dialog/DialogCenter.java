@@ -1,9 +1,12 @@
 package view.dialog;
 
+import android.bluetooth.BluetoothDevice;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+
+import java.util.List;
 
 /**
  * Created by zhongyu on 1/17/2018.
@@ -46,6 +49,15 @@ public class DialogCenter {
     public WaitingPlayerDialog showWaitintPlayerDialog() {
         mWaitingDialog.show(preShowDialog(WaitingPlayerDialog.TAG), WaitingPlayerDialog.TAG);
         return mWaitingDialog;
+    }
+
+    public PeersDialog showPeersDialog() {
+        mPeersDialog.show(preShowDialog(PeersDialog.TAG), PeersDialog.TAG);
+        return mPeersDialog;
+    }
+
+    public void updateBlueToothPeers(List<BluetoothDevice> data, boolean append) {
+        mPeersDialog.updateBlueToothPeers(data, append);
     }
 
 

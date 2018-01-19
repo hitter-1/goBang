@@ -21,6 +21,8 @@ public class Constants {
 
 
     public static final String BTN_WIFI_BLUE_CANCEL = "btnwifibluecancel";
+    public static final String WAIT_CANCEL = "waitcancel";
+    public static final String WAIT_BEGAN = "waitbegan";
 
 
 }

@@ -10,6 +10,9 @@ import android.view.Window;
 import com.example.zhongyu.gobang_ai.R;
 import com.gc.materialdesign.views.ButtonRectangle;
 
+import event.StringEvent;
+import utils.Constants;
+
 /**
  * Created by zhongyu on 1/18/2018.
  */
@@ -18,8 +21,7 @@ public class WaitingPlayerDialog extends BaseDialog {
     public static final String TAG = "WaitingPlayerDialog";
     private ButtonRectangle mBeginButton;
 
-    public static final String WAIT_CANCEL = "waitcancel";
-    public static final String WAIT_BEGAN = "waitbegan";
+
 
     @Nullable
     @Override
@@ -32,7 +34,7 @@ public class WaitingPlayerDialog extends BaseDialog {
         view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishClickSubject.onNext(WAIT_CANCEL);
+                publishClickSubject.onNext(new StringEvent(Constants.WAIT_CANCEL));
             }
         });
 
@@ -44,7 +46,7 @@ public class WaitingPlayerDialog extends BaseDialog {
         mBeginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishClickSubject.onNext(WAIT_BEGAN);
+                publishClickSubject.onNext(new StringEvent(Constants.WAIT_BEGAN));
             }
         });
     }

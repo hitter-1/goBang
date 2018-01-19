@@ -13,6 +13,9 @@ import android.view.View;
 
 import com.example.zhongyu.gobang_ai.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import event.Event;
 import event.StringEvent;
 import io.reactivex.functions.Consumer;
@@ -107,6 +110,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void joinGame() {
         mIsHost = false;
+        mDialogCenter.showPeersDialog();
+        bluetoothScan(false);
     }
 
     private void quitGame() {
@@ -118,12 +123,21 @@ public class GameActivity extends AppCompatActivity {
      * @param discoverable ture 扫描或被发现
      */
     private void bluetoothScan(boolean discoverable) {
-        BluetoothClient.get(this, false).publishSubject.subscribe(new Consumer<BluetoothDevice>() {
+        BluetoothClient.get(this, discoverable).publishSubject.subscribe(new Consumer<List<BluetoothDevice>>() {
             @Override
-            public void accept(BluetoothDevice bluetoothDevice) throws Exception {
-
+            public void accept(List<BluetoothDevice> bluetoothDeviceList) throws Exception {
+                mDialogCenter.updateBlueToothPeers(bluetoothDeviceList, false);
             }
         });
+    }
+
+    /**
+     * 更新蓝牙扫描
+     * @param bluetoothDevice
+     */
+    private void peerDialogBluUpdate(List<BluetoothDevice> bluetoothDeviceList ,BluetoothDevice bluetoothDevice) {
+        bluetoothDeviceList.add(bluetoothDevice);
+        mDialogCenter.updateBlueToothPeers(bluetoothDeviceList, true);
     }
 
 

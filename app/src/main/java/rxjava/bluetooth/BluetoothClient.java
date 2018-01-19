@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import io.reactivex.Observable;
@@ -24,31 +27,30 @@ public class BluetoothClient {
 
     BluetoothAdapter mBluetoothAdapter;
     private static volatile BluetoothClient proxyClient;
-    public PublishSubject<BluetoothDevice> publishSubject;
+    public PublishSubject<List<BluetoothDevice>> publishSubject;
     private Context mContext;
-    private boolean Discoverable = false;
-
+    private List<BluetoothDevice> bluetoothDeviceList;
     /**
-     *
      * @param context
      * @param discoverable 是查找其他设备还是被别的设备找到
      */
     private BluetoothClient(Context context, boolean discoverable) {
         publishSubject = PublishSubject.create();
         mContext = context;
+        bluetoothDeviceList = new ArrayList<>();
         initBlueTooth();
-        if(discoverable) {
+        if (discoverable) {
             setDiscoverable(context);
-        }else {
-            startDiscovery();
+        } else {
+            addPairedDevices();//添加已经配对的设备
+            startDiscovery();//扫描新的设备
         }
     }
 
-
     private boolean initBlueTooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter != null) {
-            if(!mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter != null) {
+            if (!mBluetoothAdapter.isEnabled()) {
                 mBluetoothAdapter.enable();
             }
         }
@@ -67,6 +69,9 @@ public class BluetoothClient {
         mContext.registerReceiver(mBroadcastReceiver, filter);
     }
 
+    private void addPairedDevices() {
+        publishSubject.onNext(getPairedDevices());
+    }
 
     private void setDiscoverable(Context mContext) {
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -77,21 +82,25 @@ public class BluetoothClient {
 
     private void startBlueToothService() {
         //如何本地蓝牙在搜索其他设备就取消搜索.专心做服务蓝牙设备
-        if(mBluetoothAdapter.isDiscovering()) {
+        if (mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
         }
     }
 
-
     public static BluetoothClient get(Context context, boolean discoverable) {
-        if(proxyClient == null) {
+        if (proxyClient == null) {
             synchronized (BluetoothClient.class) {
-                if(proxyClient == null) {
+                if (proxyClient == null) {
                     proxyClient = new BluetoothClient(context, discoverable);
                 }
             }
         }
         return proxyClient;
+    }
+
+    private List<BluetoothDevice> getPairedDevices() {
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        return new ArrayList<>(pairedDevices);
     }
 
 
@@ -100,17 +109,18 @@ public class BluetoothClient {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             //发现蓝牙设备
-            if(BluetoothDevice.ACTION_FOUND.equals(action)) {
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 //从Intent中获取设备
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                publishSubject.onNext(device);
-            }else if(mBluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                if(!bluetoothDeviceList.contains(device)) {
+                    bluetoothDeviceList.add(device);
+                    publishSubject.onNext(bluetoothDeviceList);
+                }
+            } else if (mBluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 publishSubject.onComplete();
             }
         }
     };
-
-
 
 
 }
