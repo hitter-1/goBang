@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.EventLog;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.zhongyu.gobang_ai.R;
 
+import event.Event;
+import event.StringEvent;
 import io.reactivex.functions.Consumer;
 import rxjava.bluetooth.BluetoothClient;
 import utils.Constants;
@@ -74,19 +77,27 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<String>() {
+        mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<Event>() {
             @Override
-            public void accept(String s) throws Exception {
-                if(s.endsWith(CompositionDialog.CREAT_GAME)) {
-                    onCreateGame();
-                }else if(s.endsWith(CompositionDialog.JOIN_GAME)) {
-                    joinGame();
-                }else if(s.endsWith(CompositionDialog.BTN_CANCEL)) {
-                    quitGame();
+            public void accept(Event event) throws Exception {
+                if(event instanceof StringEvent) {
+                    strEventDeal(((StringEvent) event).getStrName());
                 }
             }
         });
     }
+
+    private void strEventDeal(String s) {
+        if(s.endsWith(CompositionDialog.CREAT_GAME)) {
+            onCreateGame();
+        }else if(s.endsWith(CompositionDialog.JOIN_GAME)) {
+            joinGame();
+        }else if(s.endsWith(CompositionDialog.BTN_CANCEL)) {
+            quitGame();
+        }
+    }
+
+
 
     private void onCreateGame() {
         mIsHost = true;
@@ -95,7 +106,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void joinGame() {
-
+        mIsHost = false;
     }
 
     private void quitGame() {

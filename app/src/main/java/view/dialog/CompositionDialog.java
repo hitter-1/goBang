@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import com.example.zhongyu.gobang_ai.R;
 
+import event.StringEvent;
+
 /**
  * Created by zhongyu on 1/17/2018.
  */
@@ -29,19 +31,19 @@ public class CompositionDialog extends BaseDialog {
         view.findViewById(R.id.btn_create_game).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishClickSubject.onNext(CREAT_GAME);
+                publishClickSubject.onNext(new StringEvent(CREAT_GAME));
             }
         });
         view.findViewById(R.id.btn_join_game).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishClickSubject.onNext(JOIN_GAME);
+                publishClickSubject.onNext(new StringEvent(JOIN_GAME));
             }
         });
         view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                publishClickSubject.onNext(BTN_CANCEL);
+                publishClickSubject.onNext(new StringEvent(BTN_CANCEL));
             }
         });
 

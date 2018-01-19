@@ -18,4 +18,9 @@ public class Constants {
     public static final int CHESS_NONE = 0;
     public static final int CHESS_WHITE = 1;
     public static final int CHESS_BLACK = 2;
+
+
+    public static final String BTN_WIFI_BLUE_CANCEL = "btnwifibluecancel";
+
+
 }

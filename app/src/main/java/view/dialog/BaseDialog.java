@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import event.Event;
 import io.reactivex.subjects.PublishSubject;
 
 /**
@@ -16,7 +17,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class BaseDialog extends DialogFragment {
 
-    public PublishSubject<String> publishClickSubject = PublishSubject.create();
+    public PublishSubject<Event> publishClickSubject = PublishSubject.create();
 
     @Nullable
     @Override
