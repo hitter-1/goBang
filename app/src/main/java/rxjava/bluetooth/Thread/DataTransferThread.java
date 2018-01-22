@@ -15,6 +15,7 @@ import java.util.Arrays;
 
 import event.Event;
 import io.reactivex.subjects.PublishSubject;
+import utils.GsonUtils;
 
 /**
  * Created by zhongyu on 1/20/2018.
@@ -74,7 +75,7 @@ public class DataTransferThread extends Thread {
 
     public void sendData(Object data) {
         try {
-            String strData = new Gson().toJson(data);
+            String strData = GsonUtils.getInstance().toJson(data);
 //            String strData = LoganSquare.serialize(data);
             byte[] buffer;
             buffer = strData.getBytes(Charsets.UTF_8);

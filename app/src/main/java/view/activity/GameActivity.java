@@ -32,6 +32,7 @@ import rxjava.bluetooth.Thread.ConnectThread;
 import rxjava.bluetooth.Thread.DataTransferThread;
 import utils.Constants;
 import utils.GameJudger;
+import utils.GsonUtils;
 import utils.MessageWrapper;
 import utils.OperationQueue;
 import utils.ToastUtil;
@@ -196,7 +197,7 @@ public class GameActivity extends AppCompatActivity {
                 .subscribe(new Consumer<String>() {
                     @Override
                     public void accept(String s) throws Exception {
-                        Message message = new Gson().fromJson(s, Message.class);
+                        Message message = GsonUtils.getInstance().fromJson(s, Message.class);
                         messageDeal(message);
                     }
                 });
