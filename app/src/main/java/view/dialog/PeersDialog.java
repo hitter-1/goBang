@@ -18,6 +18,7 @@ import com.gc.materialdesign.views.ProgressBarCircularIndeterminate;
 import java.util.ArrayList;
 import java.util.List;
 
+import event.ConnectEvent;
 import event.StringEvent;
 import salut.SalutDevice;
 import utils.Constants;
@@ -122,9 +123,9 @@ public class PeersDialog extends BaseDialog {
                 @Override
                 public void onClick(View v) {
                     if (mIsSalutDevice) {
-//                        BusProvider.getInstance().post(new ConnectPeerEvent(mSalutDevices.get(position), null));
+                        publishClickSubject.onNext(new ConnectEvent(mSalutDevices.get(position), null));
                     } else {
-//                        BusProvider.getInstance().post(new ConnectPeerEvent(null, mBlueToothDevices.get(position)));
+                        publishClickSubject.onNext(new ConnectEvent(null, mBlueToothDevices.get(position)));
                     }
                     mProgressBar.setVisibility(View.INVISIBLE);
                 }

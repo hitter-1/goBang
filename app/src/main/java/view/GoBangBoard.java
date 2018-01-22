@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.example.zhongyu.gobang_ai.R;
 
+import bean.Point;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
@@ -233,9 +234,9 @@ public class GoBangBoard extends View {
         invalidate();
     }
 
-    public void putChess(boolean isWhite, int x, int y) {
+    public boolean putChess(boolean isWhite, int x, int y) {
         if(mBoard[x][y] != Constants.CHESS_NONE) {
-            return;
+            return false;
         }
 
         if(isWhite) {
@@ -248,7 +249,17 @@ public class GoBangBoard extends View {
         mLastPutY = y;
         putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         invalidate();
+        return true;
     }
+
+    public Point convertPoint(float x, float y) {
+        int i = (int) (Math.rint((x - BOARD_MARGIN) / mGridWidth));
+        int j = (int) (Math.rint((y - BOARD_MARGIN) / mGridHeight));
+        Point point = new Point();
+        point.setXY(i, j);
+        return point;
+    }
+
 
 
     //静态内部类不会持有外部类的引用，防止内存泄漏

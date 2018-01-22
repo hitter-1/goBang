@@ -46,6 +46,16 @@ public class DialogCenter {
         return mCompositionDialog;
     }
 
+    public void dismissWaitingAndComposition() {
+        mWaitingDialog.dismiss();
+        mCompositionDialog.dismiss();
+    }
+
+    public void dismissPeersAndComposition() {
+        mPeersDialog.dismiss();
+        mCompositionDialog.dismiss();
+    }
+
     public WaitingPlayerDialog showWaitintPlayerDialog() {
         mWaitingDialog.show(preShowDialog(WaitingPlayerDialog.TAG), WaitingPlayerDialog.TAG);
         return mWaitingDialog;
@@ -58,6 +68,18 @@ public class DialogCenter {
 
     public void updateBlueToothPeers(List<BluetoothDevice> data, boolean append) {
         mPeersDialog.updateBlueToothPeers(data, append);
+    }
+
+    public void enableWaitingPlayerDialogsBegin() {
+        mWaitingDialog.setBeginEnable();
+    }
+
+    public void dismissWaitingPlayerDialog() {
+        mWaitingDialog.dismiss();
+    }
+
+    public void dismissPeersDialog() {
+        mPeersDialog.dismiss();
     }
 
 

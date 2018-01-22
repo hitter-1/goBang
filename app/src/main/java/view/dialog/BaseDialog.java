@@ -17,7 +17,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class BaseDialog extends DialogFragment {
 
-    public PublishSubject<Event> publishClickSubject = PublishSubject.create();
+    public static PublishSubject<Event> publishClickSubject = PublishSubject.create();
 
     @Nullable
     @Override

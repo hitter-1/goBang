@@ -1,13 +1,20 @@
 package utils;
 
+import java.util.UUID;
+
 /**
  * Created by zhongyu on 1/14/2018.
  */
 
 public class Constants {
 
+    public static final String APP_NAME ="gobang";
+
     public static final String CON_TAG = "game_connection";
     public static final String GAME_MODE = "game_mode";
+
+    public static final String YOU_WIN = "你赢了";
+    public static final String YOU_LOSE = "你输了";
 
     public static final String INVALID_MODE = "invalidmode";
     public static final String COUPE_MODE = "coupemode";
@@ -18,6 +25,8 @@ public class Constants {
     public static final int CHESS_NONE = 0;
     public static final int CHESS_WHITE = 1;
     public static final int CHESS_BLACK = 2;
+
+    public static final UUID MY_UUID = UUID.fromString("b2a770c2-529e-4e80-933b-99dc372d3e65");
 
 
     public static final String BTN_WIFI_BLUE_CANCEL = "btnwifibluecancel";
