@@ -4,7 +4,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="view.activity.GameActivity">
+    tools:context="com.zhongyu.ai.view.activity.GameActivity">
 
 
     <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -17,7 +17,7 @@
         card_view:cardElevation="5dp">
 
 
-        <view.GoBangBoard
+        <com.zhongyu.ai.view.GoBangBoard
             android:id="@+id/go_bang_board"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
