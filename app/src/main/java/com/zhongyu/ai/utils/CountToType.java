@@ -148,6 +148,12 @@ public class CountToType {
         return 0;
     }
 
+
+    /**
+     * 只做一件事，就是修复冲四:
+     * 如果是单独一个冲四，则将分数将至和活三一样
+     * 如果是冲四活三或者双冲四，则分数和活四一样
+     */
     public static int typeToScore(int type) {
         if(type < Score.FOUR && type >= Score.BLOCKED_FOUR) {
 

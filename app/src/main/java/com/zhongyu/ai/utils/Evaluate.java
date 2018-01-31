@@ -141,7 +141,7 @@ public class Evaluate {
                 block ++;
                 break;
             }
-            int t =    goBangBoard.getRole(point.x, point.y);//     board[x][y];
+            int t = goBangBoard.getRole(point.x, point.y);//     board[x][y];
             if(t == Constants.CHESS_NONE) {
                 if(empty == -1 && (x<len-1 && y < len-1) && goBangBoard.getRole(x + 1, y + 1) == role) {
                     empty = count;
