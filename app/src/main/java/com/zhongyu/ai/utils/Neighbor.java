@@ -21,7 +21,7 @@ public class Neighbor {
                 if(j<0||j>=len) continue;
                 if(i==point.x && j==point.y) continue;
                 if(goBangBoard.getRole(i, j) != Constants.CHESS_NONE) {
-                    count --;
+                    count--;
                     if(count <= 0) return true;
                 }
             }

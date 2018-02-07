@@ -10,6 +10,7 @@ public class Score {
      * 用一个6位数表示棋型，从高位到低位分别表示
      * 连五，活四，眠四，活三，活二/眠三，活一/眠二, 眠一
      */
+    public static final int ZERO = 0;
     public static final int ONE = 10;
     public static final int TWO = 100;
     public static final int THREE = 1000;

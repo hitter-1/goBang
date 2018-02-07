@@ -2,6 +2,7 @@ package com.zhongyu.ai.view.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.zhongyu.gobang_ai.R;

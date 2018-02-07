@@ -14,9 +14,21 @@ import android.view.View;
 import com.example.zhongyu.gobang_ai.R;
 
 import com.zhongyu.ai.bean.Point;
+
 import io.reactivex.subjects.PublishSubject;
+
+import com.zhongyu.ai.utils.Config;
 import com.zhongyu.ai.utils.Constants;
 import com.zhongyu.ai.utils.DimenUtil;
+import com.zhongyu.ai.utils.EvaluatePoint;
+import com.zhongyu.ai.utils.GameJudger;
+import com.zhongyu.ai.utils.Neighbor;
+import com.zhongyu.ai.utils.Score;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by zhongyu on 1/12/2018.
@@ -35,6 +47,21 @@ public class GoBangBoard extends View {
     private static final float BOARD_POINT_RADIUS_DP = 2;//棋盘五个圆点的半径宽度
 
     private int[][] mBoard = new int[BOARD_SIZE][BOARD_SIZE];
+    private int[][] aiScore = new int[BOARD_SIZE][BOARD_SIZE];//默认电脑黑色棋子
+    private int[][] myScore = new int[BOARD_SIZE][BOARD_SIZE];
+
+    public int[][] getmBoard() {
+        return mBoard;
+    }
+
+    public int[][] getAiScore() {
+        return aiScore;
+    }
+
+    public int[][] getMyScore() {
+        return myScore;
+    }
+
     private int mLastPutX;
     private int mLastPutY;
 
@@ -58,6 +85,10 @@ public class GoBangBoard extends View {
 
 
     private int mLineCount;
+
+    EvaluatePoint evaluatePoint = new EvaluatePoint();
+
+    // TODO: 1/31/2018 AI
 
     public PublishSubject<PutEvent> putChessSubjuct = PublishSubject.create();
 
@@ -95,6 +126,22 @@ public class GoBangBoard extends View {
 
         mWhiteChessBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.chess_white);//白色棋子初始化
         mBlackChessBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.chess_black);//黑色棋子初始化
+
+        boardAiScoreMyScoreInit();
+    }
+
+    /**
+     * 棋盘AI和自己分数初始化
+     */
+    private void boardAiScoreMyScoreInit() {
+        for (int row = 0; row < LINE_COUNT; row++) {
+            for (int col = 0; col < LINE_COUNT; col++) {
+                mBoard[col][row] = Constants.CHESS_NONE;
+                aiScore[col][row] = Score.ZERO;
+                myScore[col][row] = Score.ZERO;
+            }
+        }
+        initScore();
     }
 
     @Override
@@ -204,13 +251,13 @@ public class GoBangBoard extends View {
 
     private void drawChess(Canvas canvas) {
         for (int row = 0; row < LINE_COUNT; row++) {
-            for(int col = 0; col < LINE_COUNT; col++) {
+            for (int col = 0; col < LINE_COUNT; col++) {
                 float x = BOARD_MARGIN + row * mGridWidth;
                 float y = BOARD_MARGIN + col * mGridHeight;
                 RectF rectF = new RectF(x - HALF_CHESS_SIZE, y - HALF_CHESS_SIZE, x + HALF_CHESS_SIZE, y + HALF_CHESS_SIZE);
-                if(mBoard[row][col] == Constants.CHESS_WHITE) {
+                if (mBoard[row][col] == Constants.CHESS_WHITE) {
                     canvas.drawBitmap(mWhiteChessBitmap, null, rectF, null);//http://blog.csdn.net/fightfightfight/article/details/49814415 drawBitmap 函数详解
-                }else if(mBoard[row][col] == Constants.CHESS_BLACK) {
+                } else if (mBoard[row][col] == Constants.CHESS_BLACK) {
                     canvas.drawBitmap(mBlackChessBitmap, null, rectF, null);
                 }
             }
@@ -218,14 +265,14 @@ public class GoBangBoard extends View {
     }
 
     private void drawRedFlag(Canvas canvas) {
-        if(mShouldDrawRedFlag) {
+        if (mShouldDrawRedFlag) {
 
         }
     }
 
     public void clearBoard() {
         for (int row = 0; row < LINE_COUNT; row++) {
-            for(int col = 0; col < LINE_COUNT; col++) {
+            for (int col = 0; col < LINE_COUNT; col++) {
                 mBoard[col][row] = Constants.CHESS_NONE;
             }
         }
@@ -234,13 +281,13 @@ public class GoBangBoard extends View {
     }
 
     public boolean putChess(boolean isWhite, int x, int y) {
-        if(mBoard[x][y] != Constants.CHESS_NONE) {
+        if (mBoard[x][y] != Constants.CHESS_NONE) {
             return false;
         }
 
-        if(isWhite) {
+        if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
-        }else {
+        } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
 
@@ -249,6 +296,28 @@ public class GoBangBoard extends View {
         putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         invalidate();
         return true;
+    }
+
+    public void mBoardSetWhiteBlack(int x, int y, boolean white) {
+        if(white) {
+            mBoard[x][y] = Constants.CHESS_WHITE;
+        }else {
+            mBoard[x][y] = Constants.CHESS_BLACK;
+        }
+    }
+
+    public void setBoardWhiteBlack(Point point, boolean white) {
+        mBoardSetWhiteBlack(point.x, point.y, white);
+    }
+
+    public void setBoardWhiteBlack(Point point, int role) {
+        if(role == Constants.AI) {
+            setBoardWhiteBlack(point, true);
+        }else if(role == Constants.CHESS_NONE) {
+            mBoard[point.x][point.y] = Constants.CHESS_NONE;
+        } else {
+            setBoardWhiteBlack(point, false);
+        }
     }
 
     public Point convertPoint(float x, float y) {
@@ -262,6 +331,11 @@ public class GoBangBoard extends View {
     public int getRole(int x, int y) {
         return mBoard[x][y];
     }
+
+    public int getRole(Point point) {
+        return getRole(point.x, point.y);
+    }
+
 
     //静态内部类不会持有外部类的引用，防止内存泄漏
     public static class PutEvent {
@@ -300,7 +374,99 @@ public class GoBangBoard extends View {
         }
     }
 
+    private void initScore() {
+        for (int i = 0; i < LINE_COUNT; i++) {
+            for (int j = 0; j < LINE_COUNT; j++) {
+                if (mBoard[i][j] == Constants.CHESS_NONE) {
+                    if (Neighbor.hasNeighbor(this, new Point(i, j), 2, 2)) {
+                        int cs = new EvaluatePoint().calculateScore(this, new Point(i, j), Constants.AI);
+                        int ms = new EvaluatePoint().calculateScore(this, new Point(i, j), Constants.MY);
+                        aiScore[i][j] = cs;
+                        myScore[i][j] = ms;
+                    }
+                }
+            }
+        }
+    }
 
+    /**
+     * 移除棋子
+     * @param point
+     */
+    public void remove(Point point) {
+        mBoard[point.x][point.y] = Constants.CHESS_NONE;
+        updateScore(point);
+    }
+
+    public void setScore(Point point, int role, int score) {
+        if(role == Constants.AI) {
+            aiScore[point.x][point.y] = score;
+        }else if(role == Constants.MY) {
+            myScore[point.x][point.y] = score;
+        }
+    }
+
+    /**
+     * 只更新一个点附近的分数
+     * @param point
+     */
+    private void updateScore(Point point) {
+        int radis = 8;
+        for(int i = -radis; i < radis; i++) {
+            int x = point.x;
+            int y = point.y + i;
+            if(y < 0) continue;
+            if(y >= LINE_COUNT) break;
+            if(mBoard[x][y] != Constants.CHESS_NONE) continue;
+            update(point);
+        }
+    }
+
+    public void update(Point point) {
+        int x = point.x;
+        int y = point.y;
+        int cs = evaluatePoint.calculateScore(this, point, Constants.AI);
+        int hs = evaluatePoint.calculateScore(this, point, Constants.MY);
+        aiScore[x][y] = cs;
+        myScore[x][y] = hs;
+    }
+
+    public int getScore(Point point) {
+        return aiScore[point.x][point.y];
+    }
+
+    public int getScoreRole(Point point, int role) {
+        if(role == Constants.AI) {
+            return aiScore[point.x][point.y];
+        }else if(role == Constants.MY) {
+            return myScore[point.x][point.y];
+        }else {
+            return 0;
+        }
+    }
+
+    public int getWinPoint() {
+        for (int i = 0; i < LINE_COUNT; i++) {
+            for (int i1 = 0; i1 < LINE_COUNT; i1++) {
+                if(mBoard[i][i1] != Constants.CHESS_NONE) {
+                    if(GameJudger.isGameEnd(mBoard, i, i1)) {
+                        return mBoard[i][i1] == Constants.CHESS_BLACK ? Constants.AI : Constants.MY;
+                    }
+                }
+            }
+        }
+        return Constants.CHESS_NONE;
+    }
+
+    public List<Point> sortPointList(List<Point> pointList) {
+        Collections.sort(pointList, new Comparator<Point>() {
+            @Override
+            public int compare(Point point, Point t1) {
+                return getScore(point) - getScore(t1) ;
+            }
+        });
+        return pointList;
+    }
 
 
 }

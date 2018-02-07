@@ -5,21 +5,21 @@ package com.zhongyu.ai.utils;
  */
 
 public class Math {
-    double threshold = 1.1;
+    static double threshold = 1.1;
 
-    boolean greatThan(int a, int b) {
+    static boolean greatThan(double a, double b) {
         return a >= b * threshold;
     }
-    boolean greatOrEqualThan(int a, int b) {
+    static boolean greatOrEqualThan(int a, int b) {
         return a * threshold >= b;
     }
-    boolean littleThan(int a, int b) {
+    static boolean littleThan(int a, int b) {
         return a * threshold <= b;
     }
-    boolean littleOrEqualThan(int a, int b) {
+    static boolean littleOrEqualThan(int a, int b) {
         return a <= b * threshold;
     }
-    boolean equal(int a, int b) {
+    static boolean equal(double a, double b) {
         return (a * threshold >= b) && (a <= b * threshold);
     }
 }

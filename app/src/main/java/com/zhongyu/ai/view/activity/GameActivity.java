@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Toast;
 
 import com.example.zhongyu.gobang_ai.R;
@@ -25,6 +26,7 @@ import io.reactivex.functions.Consumer;
 import com.zhongyu.ai.rxjava.bluetooth.BluetoothClient;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.ConnectThread;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.DataTransferThread;
+import com.zhongyu.ai.utils.AI;
 import com.zhongyu.ai.utils.Constants;
 import com.zhongyu.ai.utils.GameJudger;
 import com.zhongyu.ai.utils.GsonUtils;
@@ -147,6 +149,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * 棋子放置处理事件
+     * @param board 棋盘
+     * @param x
+     * @param y
+     */
     public void onPutChess(int[][] board, int x, int y) {
         if (mIsMePlay && GameJudger.isGameEnd(board, x, y)) {
             ToastUtil.showShort(this, Constants.YOU_WIN);
@@ -294,6 +302,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void startGame(View view) {
+        // TODO: 1/31/2018  AI
+
 
     }
 

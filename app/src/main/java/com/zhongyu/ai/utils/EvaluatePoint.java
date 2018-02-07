@@ -7,7 +7,7 @@ import com.zhongyu.ai.view.GoBangBoard;
  * Created by zhongyu on 1/24/2018.
  */
 
-public class Evaluate {
+public class EvaluatePoint {
     int result = 0;
     int count = 0;
     int block = 0;
