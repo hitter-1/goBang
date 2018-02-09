@@ -31,6 +31,7 @@ public class AI {
 
     public AI(GoBangBoard goBangBoard) {
         this.goBangBoard = goBangBoard;
+        init();
     }
 
     public void init() {
@@ -52,7 +53,7 @@ public class AI {
     public Point maxmin(int deep, int _checkmateDeep) {
         int checkmateDeep = Config.checkmateDeep;
         double best = Constants.SCORE_MIN;
-        List<Point> pointList = inspired();
+        List<Point> pointList = inspired();//Complete hear
         List<Point> bestPoints = new ArrayList<>();
 
 
@@ -115,32 +116,32 @@ public class AI {
 
                         Point point = new Point(i, j);
 
-                        if(scoreMy >= Score.FIVE) {//先看电脑能不能连成5
+                        if(scoreAi >= Score.FIVE) {//先看电脑能不能连成5
                             result.add(point);
                             return result;
-                        } else if(scoreAi >= Score.FIVE) {//再看玩家能不能连成5
+                        } else if(scoreMy >= Score.FIVE) {//再看玩家能不能连成5
                             //别急着返回，因为遍历还没完成，说不定电脑自己能成五。
                             fives.add(point);
-                        } else if(scoreMy >= Score.FOUR) {
-                            fours.add(0, point);
                         } else if(scoreAi >= Score.FOUR) {
+                            fours.add(0, point);
+                        } else if(scoreMy >= Score.FOUR) {
                             fours.add(point);
-                        } else if(scoreMy >= Score.BLOCKED_FOUR) {
-                            blockedfours.add(0, point);
                         } else if(scoreAi >= Score.BLOCKED_FOUR) {
+                            blockedfours.add(0, point);
+                        } else if(scoreMy >= Score.BLOCKED_FOUR) {
                             blockedfours.add(point);
-                        } else if(scoreMy >= 2*Score.THREE) {
+                        } else if(scoreAi >= 2*Score.THREE) {
                             //能成双三也行
                             twothrees.add(0, point);
-                        } else if(scoreAi >= 2*Score.THREE) {
+                        } else if(scoreMy >= 2*Score.THREE) {
                             twothrees.add(point);
-                        } else if(scoreMy >= Score.THREE) {
-                            threes.add(0, point);
                         } else if(scoreAi >= Score.THREE) {
+                            threes.add(0, point);
+                        } else if(scoreMy >= Score.THREE) {
                             threes.add(point);
-                        } else if(scoreMy >= Score.TWO) {
-                            twos.add(0, point);
                         } else if(scoreAi >= Score.TWO) {
+                            twos.add(0, point);
+                        } else if(scoreMy >= Score.TWO) {
                             twos.add(point);
                         } else {
                             neighbors.add(point);
@@ -205,8 +206,9 @@ public class AI {
             }
         }
         if((deep == 2 || deep == 3) && Math.littleThan(best, Score.THREE * 2) && Math.greatThan(best, Score.THREE * -1)) {
-            int mate =
+//            int mate =
         }
+        return 0;
     }
 
     private void cache(int deep, int v) {
@@ -221,8 +223,8 @@ public class AI {
         MAX_SCORE = Score.FOUR;
         MIN_SCORE = Score.FIVE;
 
-        int result =
-
+//        int result =
+        return false;
     }
 
     private boolean deeping(GoBangBoard goBangBoard, int role, int deep) {
@@ -230,7 +232,7 @@ public class AI {
         debugNodeCount = 0;
         boolean result = false;
         for (int i = 0; i < deep; i++) {
-            result = maxSearch(goBangBoard, role, i);
+//            result = maxSearch(goBangBoard, role, i);
             if(result) break;
         }
         long time = java.lang.Math.abs(new Date().getTime() - start.getTime());
@@ -245,7 +247,8 @@ public class AI {
 
         }
         List<Point> points = findMax(goBangBoard, role, MAX_SCORE);
-        if(points.size() > 0 && goBangBoard.getScore(points.get(0)) > Score.FOUR) return points.get(0);
+        if(points.size() > 0 && goBangBoard.getScore(points.get(0)) > Score.FOUR)
+//            return points.get(0);
         if(points.size() == 0) return null;
         for (int i = 0; i < points.size(); i++) {
             Point p = points.get(i);
@@ -253,6 +256,7 @@ public class AI {
 
 
         }
+        return null;
     }
 
     private List<Point> findMax(GoBangBoard goBangBoard, int role, int MAX_SCORE) {

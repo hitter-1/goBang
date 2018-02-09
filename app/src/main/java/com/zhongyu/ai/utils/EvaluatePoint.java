@@ -16,6 +16,7 @@ public class EvaluatePoint {
     int empty = -1;
 
     public int calculateScore(GoBangBoard goBangBoard, Point point, int role) {
+        result = 0;
         reset();
 
         for(int i=point.y+1;true;i++) {
@@ -83,7 +84,7 @@ public class EvaluatePoint {
                 block ++;
                 break;
             }
-            int t = goBangBoard.getRole(i, point.y);
+            int t = goBangBoard.getRole(i, point.y);//board[i][p[1]];
             if(t == Constants.CHESS_NONE) {
                 if(empty == -1 && i<len-1 && goBangBoard.getRole(i + 1, point.y) == role) {
                     empty = count;
@@ -132,7 +133,7 @@ public class EvaluatePoint {
         result += CountToType.count(count, block, empty);
 
 
-        // \\
+        // TODO: 2/9/2018  next
         reset();
 
         for(int i=1;true;i++) {
@@ -141,7 +142,7 @@ public class EvaluatePoint {
                 block ++;
                 break;
             }
-            int t = goBangBoard.getRole(point.x, point.y);//     board[x][y];
+            int t = goBangBoard.getRole(x, y);//     board[x][y];
             if(t == Constants.CHESS_NONE) {
                 if(empty == -1 && (x<len-1 && y < len-1) && goBangBoard.getRole(x + 1, y + 1) == role) {
                     empty = count;
@@ -165,7 +166,7 @@ public class EvaluatePoint {
                 block ++;
                 break;
             }
-            int t =  goBangBoard.getRole(point.x, point.y);//   board[x][y];
+            int t =  goBangBoard.getRole(x, y);//   board[x][y];
             if(t == Constants.CHESS_NONE) {
                 if(empty == -1 && (x>0 && y>0) && goBangBoard.getRole(x - 1, y - 1)  == role) {
                     empty = 0;
@@ -191,7 +192,7 @@ public class EvaluatePoint {
         result += CountToType.count(count, block, empty);
 
 
-        // \/
+        // TODO: 2/9/2018 bug
         reset();
 
         for(int i=1; true;i++) {

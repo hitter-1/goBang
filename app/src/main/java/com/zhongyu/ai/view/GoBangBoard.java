@@ -287,14 +287,15 @@ public class GoBangBoard extends View {
 
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
+            updateScore(new Point(x, y));
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
 
         mLastPutX = x;
         mLastPutY = y;
-        putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         invalidate();
+        putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         return true;
     }
 
@@ -321,14 +322,15 @@ public class GoBangBoard extends View {
     }
 
     public Point convertPoint(float x, float y) {
-        int i = (int) (Math.rint((x - BOARD_MARGIN) / mGridWidth));
-        int j = (int) (Math.rint((y - BOARD_MARGIN) / mGridHeight));
+        int j = (int) (Math.rint((x - BOARD_MARGIN) / mGridWidth));
+        int i = (int) (Math.rint((y - BOARD_MARGIN) / mGridHeight));
         Point point = new Point();
         point.setXY(i, j);
         return point;
     }
 
     public int getRole(int x, int y) {
+        if(x < 0 || y < 0 || x >= LINE_COUNT || y >= LINE_COUNT) return -1;
         return mBoard[x][y];
     }
 
@@ -418,7 +420,34 @@ public class GoBangBoard extends View {
             if(y < 0) continue;
             if(y >= LINE_COUNT) break;
             if(mBoard[x][y] != Constants.CHESS_NONE) continue;
-            update(point);
+            update(new Point(x, y));
+        }
+
+        for(int i = -radis; i < radis; i++) {
+            int x = point.x + i;
+            int y = point.y;
+            if(x < 0) continue;
+            if(x >= LINE_COUNT) break;
+            if(mBoard[x][y] != Constants.CHESS_NONE) continue;
+            update(new Point(x, y));
+        }
+
+        for(int i = -radis; i < radis; i++) {
+            int x = point.x + i;
+            int y = point.y + i;
+            if(x < 0 || y < 0) continue;
+            if(x >= LINE_COUNT || y >= LINE_COUNT) break;
+            if(mBoard[x][y] != Constants.CHESS_NONE) continue;
+            update(new Point(x, y));
+        }
+
+        for(int i = -radis; i < radis; i++) {
+            int x = point.x + i;
+            int y = point.y - i;
+            if(x < 0 || y < 0) continue;
+            if(x >= LINE_COUNT || y >= LINE_COUNT) continue;
+            if(mBoard[x][y] != Constants.CHESS_NONE) continue;
+            update(new Point(x, y));
         }
     }
 

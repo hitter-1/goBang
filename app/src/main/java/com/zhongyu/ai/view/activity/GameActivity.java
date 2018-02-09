@@ -27,6 +27,7 @@ import com.zhongyu.ai.rxjava.bluetooth.BluetoothClient;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.ConnectThread;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.DataTransferThread;
 import com.zhongyu.ai.utils.AI;
+import com.zhongyu.ai.utils.Config;
 import com.zhongyu.ai.utils.Constants;
 import com.zhongyu.ai.utils.GameJudger;
 import com.zhongyu.ai.utils.GsonUtils;
@@ -66,6 +67,7 @@ public class GameActivity extends AppCompatActivity {
 
     private OperationQueue mOperationQueue;
 
+    private AI ai;
 
     public static void startActivity(Context context, String mode) {
         Intent intent = new Intent(context, GameActivity.class);
@@ -94,9 +96,11 @@ public class GameActivity extends AppCompatActivity {
                             float y = motionEvent.getY();
                             Point point = goBangBoard.convertPoint(x, y);
                             if (goBangBoard.putChess(mIsHost, point.x, point.y)) {
-                                Message data = MessageWrapper.getSendDataMessage(point, mIsHost);
-                                sendMessage(data);
-                                mIsMePlay = false;
+                                if (!gameMode.equals(Constants.AI_MODE)) {
+                                    Message data = MessageWrapper.getSendDataMessage(point, mIsHost);
+                                    sendMessage(data);
+                                    mIsMePlay = false;
+                                }
                             }
                         }
                         break;
@@ -109,19 +113,6 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void accept(GoBangBoard.PutEvent putEvent) throws Exception {
                 onPutChess(putEvent.getmBoard(), putEvent.getX(), putEvent.getY());
-            }
-        });
-
-
-
-        mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<Event>() {
-            @Override
-            public void accept(Event event) throws Exception {
-                if(event instanceof StringEvent) {
-                    strEventDeal(((StringEvent) event).getStrName());
-                }else if(event instanceof ConnectEvent) {
-                    connectEventDeal((ConnectEvent) event);
-                }
             }
         });
     }
@@ -162,6 +153,11 @@ public class GameActivity extends AppCompatActivity {
             sendMessage(end);
             mIsMePlay = false;
             mIsGameEnd = true;
+        }
+        if(mIsMePlay) {
+            ai.search(Config.searchDeep);
+        }else {
+            mIsMePlay = true;
         }
         Point point = new Point();
         point.setXY(x, y);
@@ -282,11 +278,29 @@ public class GameActivity extends AppCompatActivity {
     private void initData() {
         gameMode = getIntent().getStringExtra(GAME_MODE);
         if(gameMode.endsWith(Constants.BLUE_TOOTH_MODE)) {
+            showCompostionDialog();
         }else if(gameMode.endsWith(Constants.WIFI_MODE)) {
+            showCompostionDialog();
+        }else if(gameMode.endsWith(Constants.AI_MODE)) {
+            mIsHost = true;
         }
         setTitle(gameMode);
         mOperationQueue = new OperationQueue();
     }
+
+    private void showCompostionDialog() {
+        mDialogCenter.showCompositionDialog().publishClickSubject.subscribe(new Consumer<Event>() {
+            @Override
+            public void accept(Event event) throws Exception {
+                if(event instanceof StringEvent) {
+                    strEventDeal(((StringEvent) event).getStrName());
+                }else if(event instanceof ConnectEvent) {
+                    connectEventDeal((ConnectEvent) event);
+                }
+            }
+        });
+    }
+
 
     private void onBlueToothDeviceConnected() {
         ToastUtil.showShort(this, "蓝牙连接成功");
@@ -303,8 +317,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void startGame(View view) {
         // TODO: 1/31/2018  AI
-
-
+        ai = new AI(goBangBoard);
     }
 
     public void endGame(View view) {
