@@ -299,6 +299,25 @@ public class GoBangBoard extends View {
         return true;
     }
 
+    public boolean putChessFalse(boolean isWhite, int x, int y) {
+        if (mBoard[x][y] != Constants.CHESS_NONE) {
+            return false;
+        }
+
+        if (isWhite) {
+            mBoard[x][y] = Constants.CHESS_WHITE;
+            updateScore(new Point(x, y));
+        } else {
+            mBoard[x][y] = Constants.CHESS_BLACK;
+        }
+
+        mLastPutX = x;
+        mLastPutY = y;
+        invalidate();
+        return true;
+    }
+
+
     public void mBoardSetWhiteBlack(int x, int y, boolean white) {
         if(white) {
             mBoard[x][y] = Constants.CHESS_WHITE;

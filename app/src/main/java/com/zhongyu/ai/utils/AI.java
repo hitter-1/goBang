@@ -64,7 +64,7 @@ public class AI {
 
         for(int i=0; i < pointList.size(); i++) {
             Point p = pointList.get(i);
-            goBangBoard.setBoardWhiteBlack(p, true);
+            goBangBoard.putChessFalse(false, p.x, p.y);
             double v = -max(deep - 1, -MAX_SCORE, (int) -best, Constants.MY);
 
             //边缘棋子的话，要把分数打折，避免电脑总喜欢往边上走
@@ -175,7 +175,8 @@ public class AI {
     }
 
     private int max(int deep, int alpha, int beta, int role) {
-        // TODO: 2/2/2018 置换表默认不用 
+        Point mate = checkMateFast(goBangBoard, role, Config.checkmateDeep, 0);
+        // TODO: 2/2/2018 置换表默认不用
         if(Config.cache) {
             
         }
@@ -206,7 +207,10 @@ public class AI {
             }
         }
         if((deep == 2 || deep == 3) && Math.littleThan(best, Score.THREE * 2) && Math.greatThan(best, Score.THREE * -1)) {
-//            int mate =
+            mate = checkMateFast(goBangBoard, role, Config.checkmateDeep, 0);
+//            if(mate) {
+//                int score =
+//            }
         }
         return 0;
     }
@@ -215,19 +219,29 @@ public class AI {
         if(!Config.cache) return;
     }
 
-    private boolean checkMateFast(GoBangBoard goBangBoard, int role, int deep, int onlyFour) {
+    private Point checkMateFast(GoBangBoard goBangBoard, int role, int deep, int onlyFour) {
         if(deep == 0) deep = Config.checkmateDeep;
-        if(deep <= 0) return false;
+        if(deep <= 0) return null;
 
         //先计算冲四赢的
         MAX_SCORE = Score.FOUR;
         MIN_SCORE = Score.FIVE;
+        Point point = deeping(goBangBoard, role, deep);
+        if(point != null) {
+            goBangBoard.setScore(point, role, Score.FOUR);
+            return point;
+        }
 
-//        int result =
-        return false;
+        if(onlyFour > 0) return null;
+
+        MAX_SCORE = Score.THREE;
+        MIN_SCORE = Score.FOUR;
+        point = deeping(goBangBoard, role, deep);
+        if(point != null) goBangBoard.setScore(point, role, Score.THREE * 2);
+        return null;
     }
 
-    private boolean deeping(GoBangBoard goBangBoard, int role, int deep) {
+    private Point deeping(GoBangBoard goBangBoard, int role, int deep) {
         Date start = new Date();
         debugNodeCount = 0;
         boolean result = false;
@@ -237,7 +251,7 @@ public class AI {
         }
         long time = java.lang.Math.abs(new Date().getTime() - start.getTime());
         Log.d(TAG, "deeping() returned: " + "算杀成功("+time+"毫秒, "+ debugNodeCount + "个节点):");
-        return result;
+        return null;
     }
 
     private List<Point> maxSearch(GoBangBoard goBangBoard, int role, int deep) {
