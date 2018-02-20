@@ -1,7 +1,14 @@
 package com.zhongyu.ai.utils;
 
+import android.util.Log;
+
 import com.zhongyu.ai.bean.Point;
 import com.zhongyu.ai.view.GoBangBoard;
+
+import java.lang.*;
+import java.lang.Math;
+
+import static com.zhongyu.ai.view.dialog.CompositionDialog.TAG;
 
 /**
  * Created by zhongyu on 1/24/2018.
@@ -252,6 +259,25 @@ public class EvaluatePoint {
         return CountToType.typeToScore(result);
     }
 
+    //棋面估分
+    public int evaluate(GoBangBoard goBangBoard, int role) {
+        // TODO: 2/11/2018 缓存省略
+        int comMaxScore = -Score.FIVE;
+        int humMaxScore = -Score.FIVE;
+        for (int i = 0; i < goBangBoard.LINE_COUNT; i++) {
+            for (int j = 0; j < goBangBoard.LINE_COUNT; j++) {
+                goBangBoard.update(new Point(i,j));// TODO: 2/14/2018 有变动
+                if(goBangBoard.getRole(i, j) == Constants.CHESS_NONE) {
+                    comMaxScore = Math.max(goBangBoard.getAiScore()[i][j], comMaxScore);
+                    humMaxScore = Math.max(goBangBoard.getMyScore()[i][j], humMaxScore);
+                }else {
+                }
+            }
+        }
+
+        int result = (role == Constants.AI ? 1 : -1) * (comMaxScore - humMaxScore);
+        return result;
+    }
 
     void reset() {
         count = 1;

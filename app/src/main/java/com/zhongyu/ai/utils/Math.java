@@ -10,10 +10,10 @@ public class Math {
     static boolean greatThan(double a, double b) {
         return a >= b * threshold;
     }
-    static boolean greatOrEqualThan(int a, int b) {
+    static boolean greatOrEqualThan(double a, double b) {
         return a * threshold >= b;
     }
-    static boolean littleThan(int a, int b) {
+    static boolean littleThan(double a, int b) {
         return a * threshold <= b;
     }
     static boolean littleOrEqualThan(int a, int b) {

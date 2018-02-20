@@ -45,6 +45,7 @@ public class AI {
         Point result = null;
         for (int i = 2; i <= deepSearch; i += 2) {
             result = maxmin(i, 0);
+//            goBangBoard.updateScoreAll();
             if(Math.greatOrEqualThan(goBangBoard.getScore(result), Score.FOUR)) return result;
         }
         return result;
@@ -65,7 +66,7 @@ public class AI {
         for(int i=0; i < pointList.size(); i++) {
             Point p = pointList.get(i);
             goBangBoard.putChessFalse(false, p.x, p.y);
-            double v = -max(deep - 1, -MAX_SCORE, (int) -best, Constants.MY);
+            double v = -max(deep - 1, -Score.FIVE * 10, (int) -best, Constants.MY);
 
             //边缘棋子的话，要把分数打折，避免电脑总喜欢往边上走
             if(p.x<3 || p.x > 11 || p.y < 3 || p.y > 11) {
@@ -174,18 +175,18 @@ public class AI {
         return result;
     }
 
-    private int max(int deep, int alpha, int beta, int role) {
+    private double max(int deep, double alpha, double beta, int role) {
         Point mate = checkMateFast(goBangBoard, role, Config.checkmateDeep, 0);
         // TODO: 2/2/2018 置换表默认不用
         if(Config.cache) {
             
         }
-        int v = evaluatePoint.calculateScore(goBangBoard, null, role);
+        int v = evaluatePoint.evaluate(goBangBoard, role);
         count++;
         if(deep <= 0 || Math.greatOrEqualThan(v, Score.FIVE)) {
             return v;
         }
-        int best = Constants.SCORE_MIN;
+        double best = Constants.SCORE_MIN;
         List<Point> points = inspired();
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
@@ -193,26 +194,28 @@ public class AI {
                 goBangBoard.setBoardWhiteBlack(point, false);
             else
                 goBangBoard.setBoardWhiteBlack(point, true);
-            int v1 = (int) (- max(deep - 1, -beta, -1 * (best > alpha ? best : alpha),
+            double v1 =  (- max(deep - 1, -beta, -1 * (best > alpha ? best : alpha),
                     Constants.reverse(role)) * Config.deepDecrease);
             goBangBoard.remove(point);
 
-            if(Math.greatThan(v , best))
+            if(Math.greatThan(v1, best))
                 best = v1;
-            if(Math.greatOrEqualThan(v, beta)) {
+            if(Math.greatOrEqualThan(v1, beta)) {
                 ABcut++;
                 // TODO: 2/5/2018
-                cache(deep, v1);
+//                cache(deep, v1);
                 return v1;
             }
         }
         if((deep == 2 || deep == 3) && Math.littleThan(best, Score.THREE * 2) && Math.greatThan(best, Score.THREE * -1)) {
-            mate = checkMateFast(goBangBoard, role, Config.checkmateDeep, 0);
-//            if(mate) {
-//                int score =
+//            mate = checkMateFast(goBangBoard, role, Config.checkmateDeep, 0);
+//            if(mate == null) {
+//            }else {
+//                double score = goBangBoard.getScore(mate) * java.lang.Math.pow(0.8, 2) * (role == Constants.AI ? 1 : -1);
+//                return score;
 //            }
         }
-        return 0;
+        return best;
     }
 
     private void cache(int deep, int v) {
@@ -238,41 +241,59 @@ public class AI {
         MIN_SCORE = Score.FOUR;
         point = deeping(goBangBoard, role, deep);
         if(point != null) goBangBoard.setScore(point, role, Score.THREE * 2);
-        return null;
+        return point;
     }
 
+    //迭代加深
     private Point deeping(GoBangBoard goBangBoard, int role, int deep) {
         Date start = new Date();
         debugNodeCount = 0;
-        boolean result = false;
-        for (int i = 0; i < deep; i++) {
-//            result = maxSearch(goBangBoard, role, i);
-            if(result) break;
+        List<Point> result = null;
+        for (int i = 1; i <= deep; i++) {
+            result = maxSearch(goBangBoard, role, i);
+            if(result != null) break;//找到一个就行
         }
         long time = java.lang.Math.abs(new Date().getTime() - start.getTime());
         Log.d(TAG, "deeping() returned: " + "算杀成功("+time+"毫秒, "+ debugNodeCount + "个节点):");
-        return null;
+        if(result != null) {
+            return result.get(0);
+        }else {
+            return null;
+        }
     }
 
     private List<Point> maxSearch(GoBangBoard goBangBoard, int role, int deep) {
+        List<Point> pointList = new ArrayList<>();
+        List<Point> result = new ArrayList<>();
         debugNodeCount++;
         if(deep <= 0) return null;
         if(Config.cache) {
 
         }
         List<Point> points = findMax(goBangBoard, role, MAX_SCORE);
-        if(points.size() > 0 && goBangBoard.getScore(points.get(0)) > Score.FOUR)
-//            return points.get(0);
+        if(points.size() > 0 && goBangBoard.getScore(points.get(0)) > Score.FOUR) {
+            pointList.add(points.get(0));
+            return pointList;
+        }
         if(points.size() == 0) return null;
         for (int i = 0; i < points.size(); i++) {
             Point p = points.get(i);
             goBangBoard.setBoardWhiteBlack(p, role);
-
-
+            List<Point> minList = min(goBangBoard, role, deep - 1);
+            goBangBoard.setBoardWhiteBlack(p, Constants.CHESS_NONE);
+            if(minList != null) {
+                minList.add(p);
+                return minList;
+            }else {
+                result.clear();
+                result.add(p);
+                return result;
+            }
         }
         return null;
     }
 
+    // TODO: 2/11/2018  
     private List<Point> findMax(GoBangBoard goBangBoard, int role, int MAX_SCORE) {
         List<Point> result = new ArrayList<>();
         for (int i = 0; i < goBangBoard.LINE_COUNT; i++) {
@@ -281,12 +302,13 @@ public class AI {
                     Point p = new Point(i, j);
                     if(Neighbor.hasNeighbor(goBangBoard, p, 2, 1)) {
                         // TODO: 2/7/2018 有修改
-                        goBangBoard.update(p);
-                        if(goBangBoard.getScore(p) >= Score.FIVE) {
+//                        goBangBoard.update(p);
+                        int score = evaluatePoint.calculateScore(goBangBoard, p, role);
+                        if(score >= Score.FIVE) {
                             result.add(p);
                             return result;
                         }
-                        if(goBangBoard.getScore(p) >= MAX_SCORE) {
+                        if(score >= MAX_SCORE) {
                             result.add(p);
                         }
                     }
@@ -357,7 +379,7 @@ public class AI {
         return goBangBoard.sortPointList(result);
     }
 
-    private Point min(GoBangBoard goBangBoard, int role, int deep) {
+    private List<Point> min(GoBangBoard goBangBoard, int role, int deep) {
         debugNodeCount++;
         int win = goBangBoard.getWinPoint();
         if(win == role) return null;
@@ -389,7 +411,9 @@ public class AI {
         }
         Point result = cands.get((int) java.lang.Math.floor(cands.size() * java.lang.Math.random()));
         // TODO: 2/6/2018 置换表
-        return result;
+        List<Point> minList = new ArrayList<>();
+        minList.add(result);
+        return minList;
     }
 }
 

@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.example.zhongyu.gobang_ai.R;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.zhongyu.ai.view.dialog.CompositionDialog.TAG;
 
 /**
  * Created by zhongyu on 1/12/2018.
@@ -287,10 +290,11 @@ public class GoBangBoard extends View {
 
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
-            updateScore(new Point(x, y));
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
+
+        updateScore(new Point(x, y));
 
         mLastPutX = x;
         mLastPutY = y;
@@ -306,7 +310,7 @@ public class GoBangBoard extends View {
 
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
-            updateScore(new Point(x, y));
+//            updateScore(new Point(x, y));
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
@@ -507,6 +511,9 @@ public class GoBangBoard extends View {
     }
 
     public List<Point> sortPointList(List<Point> pointList) {
+        if(pointList.size() == 0) {
+            return pointList;
+        }
         Collections.sort(pointList, new Comparator<Point>() {
             @Override
             public int compare(Point point, Point t1) {
@@ -516,7 +523,16 @@ public class GoBangBoard extends View {
         return pointList;
     }
 
-
+    public void updateScoreAll() {
+        for (int i = 0; i < LINE_COUNT; i++) {
+            for (int i1 = 0; i1 < LINE_COUNT; i1++) {
+                if(getRole(i, i1) != Constants.CHESS_NONE) {
+                    Log.d(TAG, "updateScoreAll() returned: " + i+ "/"+ i1);
+                }
+                updateScore(new Point(i, i1));
+            }
+        }
+    }
 }
 
 
