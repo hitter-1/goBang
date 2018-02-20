@@ -288,18 +288,21 @@ public class GoBangBoard extends View {
             return false;
         }
 
+        if(x == 7 && y == 7) {
+
+        }else {
+            updateScore(new Point(x, y));
+        }
+
+        mLastPutX = x;
+        mLastPutY = y;
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
-
-        updateScore(new Point(x, y));
-
-        mLastPutX = x;
-        mLastPutY = y;
-        invalidate();
         putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
+        invalidate();
         return true;
     }
 
@@ -310,10 +313,10 @@ public class GoBangBoard extends View {
 
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
-            updateScore(new Point(x, y));
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
+        updateScore(new Point(x, y));
 
 //        mLastPutX = x;
 //        mLastPutY = y;
@@ -527,7 +530,6 @@ public class GoBangBoard extends View {
         for (int i = 0; i < LINE_COUNT; i++) {
             for (int i1 = 0; i1 < LINE_COUNT; i1++) {
                 if(getRole(i, i1) != Constants.CHESS_NONE) {
-                    Log.d(TAG, "updateScoreAll() returned: " + i+ "/"+ i1);
                 }
                 updateScore(new Point(i, i1));
             }

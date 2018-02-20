@@ -154,14 +154,17 @@ public class GameActivity extends AppCompatActivity {
             mIsMePlay = false;
             mIsGameEnd = true;
         }
-        if(mIsMePlay) {
-            ai.search(Config.searchDeep);
-        }else {
-            mIsMePlay = true;
-        }
         Point point = new Point();
         point.setXY(x, y);
         mOperationQueue.addOperation(point);
+        if(mIsMePlay) {
+            Point pointAi = ai.search(Config.searchDeep);
+            mIsMePlay = false;
+            goBangBoard.putChess(false, pointAi.x, pointAi.y);
+        }else {
+            mIsMePlay = true;
+        }
+
     }
 
     private void connectEventDeal(ConnectEvent connectEvent) {

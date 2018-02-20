@@ -266,7 +266,7 @@ public class EvaluatePoint {
         int humMaxScore = -Score.FIVE;
         for (int i = 0; i < goBangBoard.LINE_COUNT; i++) {
             for (int j = 0; j < goBangBoard.LINE_COUNT; j++) {
-                goBangBoard.update(new Point(i,j));// TODO: 2/14/2018 有变动
+//                goBangBoard.update(new Point(i,j));// TODO: 2/14/2018 有变动
                 if(goBangBoard.getRole(i, j) == Constants.CHESS_NONE) {
                     comMaxScore = Math.max(goBangBoard.getAiScore()[i][j], comMaxScore);
                     humMaxScore = Math.max(goBangBoard.getMyScore()[i][j], humMaxScore);
