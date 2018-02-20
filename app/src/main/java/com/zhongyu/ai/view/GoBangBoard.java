@@ -310,14 +310,14 @@ public class GoBangBoard extends View {
 
         if (isWhite) {
             mBoard[x][y] = Constants.CHESS_WHITE;
-//            updateScore(new Point(x, y));
+            updateScore(new Point(x, y));
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
 
-        mLastPutX = x;
-        mLastPutY = y;
-        invalidate();
+//        mLastPutX = x;
+//        mLastPutY = y;
+//        invalidate();
         return true;
     }
 
@@ -345,8 +345,8 @@ public class GoBangBoard extends View {
     }
 
     public Point convertPoint(float x, float y) {
-        int j = (int) (Math.rint((x - BOARD_MARGIN) / mGridWidth));
-        int i = (int) (Math.rint((y - BOARD_MARGIN) / mGridHeight));
+        int i = (int) (Math.rint((x - BOARD_MARGIN) / mGridWidth));
+        int j = (int) (Math.rint((y - BOARD_MARGIN) / mGridHeight));
         Point point = new Point();
         point.setXY(i, j);
         return point;

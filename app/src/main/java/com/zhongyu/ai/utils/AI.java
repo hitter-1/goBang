@@ -36,6 +36,7 @@ public class AI {
 
     public void init() {
         goBangBoard.putChess(false, 7, 7);
+//        goBangBoard.putChess(false, 8, 7);
     }
 
     public Point search(int deepSearch) {
@@ -45,7 +46,9 @@ public class AI {
         Point result = null;
         for (int i = 2; i <= deepSearch; i += 2) {
             result = maxmin(i, 0);
-//            goBangBoard.updateScoreAll();
+            if(i == 6) {
+                goBangBoard.updateScoreAll();
+            }
             if(Math.greatOrEqualThan(goBangBoard.getScore(result), Score.FOUR)) return result;
         }
         return result;
