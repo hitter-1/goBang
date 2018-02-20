@@ -108,6 +108,7 @@ public class GameActivity extends AppCompatActivity {
                 return false;
             }
         });
+
         //使用Rxjava取代回调
         goBangBoard.putChessSubjuct.subscribe(new Consumer<GoBangBoard.PutEvent>() {
             @Override
