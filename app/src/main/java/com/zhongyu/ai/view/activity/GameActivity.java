@@ -10,19 +10,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.zhongyu.gobang_ai.R;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import com.jakewharton.rxbinding.view.RxView;
 import com.zhongyu.ai.bean.Message;
 import com.zhongyu.ai.bean.Point;
 import com.zhongyu.ai.event.ConnectEvent;
 import com.zhongyu.ai.event.Event;
 import com.zhongyu.ai.event.StringEvent;
+
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import rx.Observer;
+
 import com.zhongyu.ai.rxjava.bluetooth.BluetoothClient;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.ConnectThread;
 import com.zhongyu.ai.rxjava.bluetooth.Thread.DataTransferThread;
@@ -42,15 +50,17 @@ import com.zhongyu.ai.view.dialog.DialogCenter;
  * Created by zhongyu on 1/12/2018.
  */
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements View.OnTouchListener{
     private static final String TAG = "GameActivity";
-    
+    private static final int MIN_DELAY_TIME= 1000;  // 两次点击间隔不能少于1000ms
+    private static long lastClickTime;
     public static final String GAME_MODE = "gamemode";
 
     public static final String GAME_WIFI = "gamewifi";
     public static final String GAME_BLUETOOTH = "gamebluetooth";
     public static final String GAME_AI = "gameai";
     public static final String GAME_DOUBLE_AGAIN = "gamedoubleagain";
+    private TextView tvComputer;
 
     private String gameMode = null;
 
@@ -79,43 +89,36 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        initData();
         initView();
+        initData();
     }
 
     private void initView() {
         goBangBoard = (GoBangBoard) findViewById(R.id.go_bang_board);
+        goBangBoard.setOnTouchListener(this);
+        tvComputer = (TextView) findViewById(R.id.tv_com);
         mDialogCenter = new DialogCenter(this);
-        goBangBoard.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (!mIsGameEnd && mIsMePlay) {
-                            float x = motionEvent.getX();
-                            float y = motionEvent.getY();
-                            Point point = goBangBoard.convertPoint(x, y);
-                            if (goBangBoard.putChess(mIsHost, point.x, point.y)) {
-                                if (!gameMode.equals(Constants.AI_MODE)) {
-                                    Message data = MessageWrapper.getSendDataMessage(point, mIsHost);
-                                    sendMessage(data);
-                                    mIsMePlay = false;
-                                }
-                            }
-                        }
-                        break;
-                }
-                return false;
-            }
-        });
 
         //使用Rxjava取代回调
-        goBangBoard.putChessSubjuct.subscribe(new Consumer<GoBangBoard.PutEvent>() {
+        goBangBoard.putChessSubjuct
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<GoBangBoard.PutEvent>() {
             @Override
             public void accept(GoBangBoard.PutEvent putEvent) throws Exception {
                 onPutChess(putEvent.getmBoard(), putEvent.getX(), putEvent.getY());
             }
         });
+    }
+
+    public static boolean isFastClick() {
+        boolean flag = true;
+        long currentClickTime = System.currentTimeMillis();
+        if ((currentClickTime - lastClickTime) >= MIN_DELAY_TIME) {
+            flag = false;
+        }
+        lastClickTime = currentClickTime;
+        return flag;
     }
 
     private void strEventDeal(String s) {
@@ -158,11 +161,12 @@ public class GameActivity extends AppCompatActivity {
         Point point = new Point();
         point.setXY(x, y);
         mOperationQueue.addOperation(point);
-        if(mIsMePlay) {
+        if(mIsMePlay && gameMode.equals(Constants.AI_MODE)) {
             Point pointAi = ai.search(Config.searchDeep);
             mIsMePlay = false;
             goBangBoard.putChess(false, pointAi.x, pointAi.y);
         }else {
+            tvComputer.setVisibility(View.GONE);
             mIsMePlay = true;
         }
 
@@ -326,5 +330,30 @@ public class GameActivity extends AppCompatActivity {
 
     public void endGame(View view) {
 
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        if(isFastClick()) {
+            return false;
+        }
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (!mIsGameEnd && mIsMePlay) {
+                    float x = motionEvent.getX();
+                    float y = motionEvent.getY();
+                    Point point = goBangBoard.convertPoint(x, y);
+                    tvComputer.setVisibility(View.VISIBLE);
+                    if (goBangBoard.putChess(mIsHost, point.x, point.y)) {
+                        if (!gameMode.equals(Constants.AI_MODE)) {
+                            Message data = MessageWrapper.getSendDataMessage(point, mIsHost);
+                            sendMessage(data);
+                            mIsMePlay = false;
+                        }
+                    }
+                }
+                break;
+        }
+        return false;
     }
 }

@@ -301,8 +301,8 @@ public class GoBangBoard extends View {
         } else {
             mBoard[x][y] = Constants.CHESS_BLACK;
         }
-        putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         invalidate();
+        putChessSubjuct.onNext(new PutEvent(mBoard, x, y));
         return true;
     }
 
