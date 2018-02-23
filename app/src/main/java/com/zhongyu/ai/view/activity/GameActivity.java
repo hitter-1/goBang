@@ -337,6 +337,7 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         if(isFastClick()) {
             return false;
         }
+
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (!mIsGameEnd && mIsMePlay) {
